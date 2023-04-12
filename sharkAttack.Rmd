@@ -5,6 +5,13 @@ date: "4-12-23"
 output: pdf_document
 ---
 
+
+```{r}
+# load data
+sharkTank = read.csv("sharkTank.csv", header=TRUE)
+```
+
+
 ## Intro
 
 ## Conclusion 
