@@ -1,0 +1,11 @@
+ ---
+title: "36-402 Final Project"
+author: "Darin Chaoui Jett Hays Emily Huang"
+date: "4-12-23"
+output: pdf_document
+---
+
+## Intro
+
+## Conclusion 
+ 
