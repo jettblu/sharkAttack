@@ -106,6 +106,98 @@ ggplot(data =  sharkPredDf, mapping = aes(x = Observed, y = Predicted)) +
 
 The confusion matrix indicates our model produces more false positives than false negatives at a .5 classification threshold. Overall, the in sample classification accuracy of our reduced model is ~.6. 
 
+## Shark Preferences.
+We want to know whether or not each shark has a preference on category of company. 
+
+```{r}
+# load packages
+library(ggplot2)
+library(tidyr)
+```
+
+```{r}
+# subset dataset with only the sharks, category, and deal or no deal
+sharkCat = sharkTank[, c("shark1", "shark2", "shark3", "shark4", "shark5", "category", "deal")]
+sharkCat <- sharkCat %>%
+  pivot_longer(cols = starts_with("shark"), names_to = "shark", 
+               values_to = "name")
+sharkCat = subset(sharkCat, select = -shark)
+```
+
+```{r}
+# combine categories into broader categories
+broaderCats = list(Novelties = c("Novelties"), 
+                   Food = c("Specialty Food"), 
+                   Family = c("Baby and Child Care", 
+                              "Baby and Children's Entertainment", 
+                              "Maternity", "Weddings", 
+                              "Baby and Children's Apparel and Accessories", 
+                              "Baby and Children's Bedding", 
+                              "Baby and Children's Food"),
+                   OnlineandConsumerServices = c("Consumer Services"),
+                   ApparelandAccessories = c("Men and Women's Apparel", 
+                                             "Women's Accessories", 
+                                             "Undergarments and Basics", 
+                                             "Fashion Accessories", 
+                                             "Women's Apparel", "Women's Shoes", 
+                                             "Men's Accessories", 
+                                             "Men and Women's Shoes", 
+                                             "Men and Women's Accessories", 
+                                             "Costumes"),
+                   Education = c("Productivity Tools", "Education"),
+                   ElectronicsandAutomotive = c("Automotive", "Electronics", 
+                                                "Mobile Apps"),
+                   GardeningandHomeImprovement = c("Kitchen Tools", "Gardening", 
+                                                   "Furniture", 
+                                                   "Storage and Cleaning Products", 
+                                                   "Home Improvement", 
+                                                   "Home Accessories", 
+                                                   "Pest Control", 
+                                                   "Home Security Solutions"),
+                   Entertainment = c("Music", "Entertainment", "Toys and Games", 
+                                     "Holiday Cheer", "Party Supplies"),
+                   OnlineandConsumerServices = c("Professional Services", 
+                                                 "Online Services"),
+                   FitnessandSports = c("Fitness Equipment", "Fitness Programs", 
+                                        "Golf Products", "Outdoor Recreation", 
+                                        "Fitness Apparel and Accessories", 
+                                        "Cycling"),
+                   Beverages = c("Non-Alcoholic Beverages", 
+                                 "Alcoholic Beverages", "Water Bottles", 
+                                 "Wine Accessories"),
+                   PetProducts = c("Pet Products"),
+                   HealthandPersonalCare = c("Personal Care and Cosmetics", 
+                                             "Health and Well-Being", 
+                                             "Homeopathic Remedies"))
+
+vec = vector("character", nrow(sharkCat))
+for (i in 1:nrow(sharkCat)) {
+  for (j in 1:length(broaderCats)) {
+    if (sharkCat$category[i] %in% broaderCats[[j]]) {
+      vec[i] = names(broaderCats)[j]
+    }
+  }
+}
+sharkCat$broaderCategory = vec
+```
+
+```{r}
+chisq.test(table(sharkCat$broaderCategory, sharkCat$deal))
+```
+
+Since we get a p-value less than the alpha of 0.05, we conclude that there is a statistically significant association between the category and deal.
+
+```
+# plot the shark name vs. broader category
+sharkCat %>%
+  ggplot(aes(x = broaderCategory, y = name, color = deal)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 5)) +
+  labs(x = "Category", y = "Shark Name", 
+       title = "Category vs. Sharks by Deal or No Deal")
+```
+
+This plot shows that all companies with the broader categories of Beverages, Electronics and Automotive, and Gardening and Home Improvement are always approved by every Shark. However, each Shark tends to only accept deals in certain broader categories such as Family or Food. So, companies with categories of Beverages, Electronics and Automotive, and Gardening and Home Improvement have a higher likelihood of getting a deal.
 
 
 
