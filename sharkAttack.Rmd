@@ -308,7 +308,7 @@ Our reduced model only includes description length, valuation, and exchange for 
 
 The calibration curve of our logistic regression is shown below, with the ideal response shown as a diagonal line from 0 to 1. This corresponds to the case when the fraction of successes is equivalent to our estimated rate of occurrence. Looking at the chart, we can see that the fraction of successes is noticeably higher than our predicted rate for estimated probabilities of .25 and .9. This indicates we are underestimating the amount of successes at these probability levels. 
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # plot calibration curve
 probs <- seq(0.05, 0.95, by = 0.1)
 estRates <- numeric(10)
@@ -325,7 +325,7 @@ ggplot(tempCalibrationDf, aes(x=probs, y=estRates)) + xlab("Estimated P(Y = 1 | 
 
 Since the reduced model is simpler and achieves better predictive performance than the full model, we will proceed with the reduced model. Analyzing the model coefficients, we can see that valuation is associated with almost no difference in the odds of getting a deal. We also notice that every one percent increase in exchange for stake is associated with a multiplication of the odds of deal success by ~.977. This means that requests for higher percentage of the company are associated with a decrease in the odds of getting a deal. The confusion matrix of predictions is shown below. 
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # compute classification accuracy
 n <- nrow(sharkTank2)
 # fitted vals
@@ -342,7 +342,7 @@ error = sum(sharkTank2$success != sharkPreds) / n
 interpSharkCoef = exp(coef(sharkModOpt))
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # visualize confusion matrix
 sharkPredDf = data.frame(sharkPredTable)
 ggplot(data =  sharkPredDf, mapping = aes(x = Observed, y = Predicted)) +
