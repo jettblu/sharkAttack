@@ -18,9 +18,9 @@ sharkTank = read.csv("sharkTank.csv", header=TRUE)
 
 ```{r, message=FALSE}
 # load required packages
-library("np")
-library("mgcv")
-library("ggplot2")
+library(np)
+library(mgcv)
+library(ggplot2)
 library(tidyr)
 ```
 
@@ -118,6 +118,20 @@ sharkCat %>%
 ```
 
 This plot shows that all companies with the broader categories of Beverages, Electronics and Automotive, and Gardening and Home Improvement are always approved by every Shark. However, each Shark tends to only accept deals in certain broader categories such as Family or Food. So, companies with categories of Beverages, Electronics and Automotive, and Gardening and Home Improvement have a higher likelihood of getting a deal.
+
+## The relationship between episode number (show progression) and the valuation of companies
+
+```{r}
+sharkVal = sharkTank[, c("season", "valuation")]
+sharkVal %>%
+  ggplot(aes(x = season, y = valuation)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "$")) +
+  labs(title = "Mean Valuation by Season", x = "Season", y = "Mean Valuation (USD)") +
+  theme_minimal()
+```
+
+This barchart shows that as the seasons progress, the valuation of each company increases significantly. There could be several reasons why the valuation of companies has increased as the seasons progress in addition to external factors such as changes in the market or overall economic conditions. The first possibility could be exposure since as the show gains more popularity and viewership, the exposure for companies on the show increases. This means that more people are becoming aware of the companies and their products, leading to increased interest and demand. The second possibility could be investor confident since  investors may become more confident in their ability to identify successful companies and products. This could lead to higher valuations for the companies, as investors are more willing to take risks and invest larger amounts of money. The last possibility could be show format since the show itself could also play a role in increasing valuations as the seasons progress. For example, as the show gains popularity, it may attract more successful entrepreneurs and companies, leading to a higher quality of pitches and products. This could in turn lead to higher valuations, as the companies on the show are more likely to be successful.
 
 
 ## Predicting Shark Tank Success
