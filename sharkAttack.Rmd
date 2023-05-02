@@ -30,7 +30,7 @@ Shark tank is a popular business reality show. The show features a panel of weal
 Since launching in 2009, Shark Tank has become popular for its high-stakes negotiations and dramatic moments, as well as its inspirational stories of entrepreneurs who have turned their dreams into successful businesses. This paper focuses on describing the relationship between companies and investment.
 
 Our dataset includes the quantitative variables mix of categorical askedfor, exchangeForStake, and valuation. These variables measure the requests made by a given company. We also consider a range of categorical variables including company description, location, and episode. 
-Overall, we found that the requested valuation trends upward with season and that category is associated with deal flow. We also found that the amount asked for is negatively associated with the likelihood of obtaining a deal. We believe hese insights will help entrepreneurs structure better pitches and help entrepreneurs recognize patterns in their own behavior. 
+Overall, we found that the requested valuation trends upward with season and that category is associated with deal flow. We also found that the amount asked for is negatively associated with the likelihood of obtaining a deal. We believe these insights will help entrepreneurs structure better pitches and help entrepreneurs recognize patterns in their own behavior. 
 
 ## Shark Preferences.
 We want to know whether or not each shark has a preference on category of company. 
@@ -188,6 +188,29 @@ sharkModTestStat=sharkModTest$Deviance[2]
 
 Our reduced model only includes description length, valuation, and exchange for stake as predictors. The model achieves an AIC of 675 hich is lower than our full model. To determine whether or not, the full model is justified, we run a deviance analysis test. Our null hypothesis is that the full model does not have a significant increase in predictive power. After running our test, we obtain a p-value of .3259, which falls outside of .05 significance threshold. 
 
+The calibration curve of our logistic regression is shown below, with the ideal response shown as a diagonal line from 0 to 1. This corresponds to the case when the fraction of successes is equivalent to our estimated rate of occurrence. Looking at the chart, we can see that the fraction of successes is noticeably higher than our predicted rate for estimated probabilities of .25 and .9. This indicates we are underestimating the amount of successes at these probability levels. 
+
+```{r}
+# plot calibration curve
+
+probs <- seq(0.05, 0.95, by = 0.1)
+estRates <- numeric(10)
+for (i in seq_along(probs)) {
+lower_bound <- probs[i] - 0.05
+upper_bound <- probs[i] + 0.05
+estRates[i] <- mean(sharkTank2$success[fitted(sharkModOpt) > lower_bound &
+fitted(sharkModOpt) <= upper_bound])
+}
+
+
+
+tempCalibrationDf = data.frame(probs=probs, estRates=estRates)
+
+
+ggplot(tempCalibrationDf, aes(x=probs, y=estRates)) + xlab("Estimated P(Y = 1 | X)")+ylab("Fraction of cases with Y = 1")+
+  geom_point(size=2, shape=23, fill="blue")+labs(title="Logistic Regression Calibration Curve", caption = "The calibration plot shows the comparative fraction of positive cases against the predicted probability.")+geom_abline(intercept = 0, slope = 1, color="green")
+```
+
 Since the reduced model is simpler and achieves better predictive performance than the full model, we will proceed with the reduced model. Analyzing the model coefficients, we can see that valuation is associated with almost no difference in the odds of getting a deal. We also notice that every one percent increase in exchange for stake is associated with a multiplication of the odds of deal success by ~.977. This means that requests for higher percentage of the company are associated with a decrease in the odds of getting a deal. The confusion matrix of predictions is shown below. 
 
 ```{r}
@@ -218,6 +241,11 @@ ggplot(data =  sharkPredDf, mapping = aes(x = Observed, y = Predicted)) +
 ```
 
 The confusion matrix indicates our model produces more false positives than false negatives at a .5 classification threshold. Overall, the in sample classification accuracy of our reduced model is ~.6. 
+
+```{r}
+# load partial response library
+library(pdp)
+```
 
 
 
