@@ -134,6 +134,117 @@ sharkVal %>%
 This barchart shows that as the seasons progress, the valuation of each company increases significantly. There could be several reasons why the valuation of companies has increased as the seasons progress in addition to external factors such as changes in the market or overall economic conditions. The first possibility could be exposure since as the show gains more popularity and viewership, the exposure for companies on the show increases. This means that more people are becoming aware of the companies and their products, leading to increased interest and demand. The second possibility could be investor confident since  investors may become more confident in their ability to identify successful companies and products. This could lead to higher valuations for the companies, as investors are more willing to take risks and invest larger amounts of money. The last possibility could be show format since the show itself could also play a role in increasing valuations as the seasons progress. For example, as the show gains popularity, it may attract more successful entrepreneurs and companies, leading to a higher quality of pitches and products. This could in turn lead to higher valuations, as the companies on the show are more likely to be successful.
 
 
+##Location and Valuation
+
+In order to learn about the relationship between the location of the entrepreneurs and the size of their valuations, we examined their states' populations as well as their valuations. 
+
+
+```{r}
+#Create new df for locations
+library(tidyverse)
+sharkLoc = sharkTank[, c('location', 'valuation', 'deal')]
+
+#Add column for state
+
+sharkLoc = sharkLoc %>%
+  mutate(state=substr(location, str_length(location)-1, str_length(location)))
+
+#Add column for state populations
+
+
+statePop <- ifelse(sharkLoc$state == "CA", 39.5, 
+ifelse(sharkLoc$state == "TX", 29.1 , 
+ifelse(sharkLoc$state == "FL", 21.5,
+ifelse(sharkLoc$state == "NY",20.2 ,
+ifelse(sharkLoc$state == "PA", 13.0,
+ifelse(sharkLoc$state == "IL", 12.8,
+ifelse(sharkLoc$state == "OH", 11.8,
+ifelse(sharkLoc$state == "GA", 10.7,
+ifelse(sharkLoc$state == "NC", 10.4, 
+ifelse(sharkLoc$state == "MI", 10.0,
+ifelse(sharkLoc$state == "NJ", 9.3,
+ifelse(sharkLoc$state == "VA", 8.6,
+ifelse(sharkLoc$state == "WA", 7.7,
+ifelse(sharkLoc$state == "AZ", 7.2,
+ifelse(sharkLoc$state == "MA", 7.0,
+ifelse(sharkLoc$state == "TN",6.9 , 
+ifelse(sharkLoc$state == "IN", 6.8,
+ifelse(sharkLoc$state == "MD",6.2 ,
+ifelse(sharkLoc$state == "MO", 6.2,
+ifelse(sharkLoc$state == "WI", 5.9,
+ifelse(sharkLoc$state == "CO",5.8 ,
+ifelse(sharkLoc$state == "MN",5.7 ,
+ifelse(sharkLoc$state == "SC",5.1 , 
+ifelse(sharkLoc$state == "AL",5.0 ,
+ifelse(sharkLoc$state == "LA", 4.7,
+ifelse(sharkLoc$state == "KY", 4.5,
+ifelse(sharkLoc$state == "OR",4.2 ,
+ifelse(sharkLoc$state == "OK",4.0 ,
+ifelse(sharkLoc$state == "CT",3.6 ,
+ifelse(sharkLoc$state == "UT",3.3 ,
+ifelse(sharkLoc$state == "IA",3.2 , 
+ifelse(sharkLoc$state == "NV",3.1 ,
+ifelse(sharkLoc$state == "AR",3.0 ,
+ifelse(sharkLoc$state == "MS",3.0 ,
+ifelse(sharkLoc$state == "KS",2.9 ,
+ifelse(sharkLoc$state == "NM",2.1 ,
+ifelse(sharkLoc$state == "NE",2.0 ,
+ifelse(sharkLoc$state == "ID",1.8 , 
+ifelse(sharkLoc$state == "WV",1.8 ,
+ifelse(sharkLoc$state == "HI",1.5 ,
+ifelse(sharkLoc$state == "NH",1.4 ,
+ifelse(sharkLoc$state == "ME",1.4 ,
+ifelse(sharkLoc$state == "RI",1.1 ,
+ifelse(sharkLoc$state == "MT",1.1 ,
+ifelse(sharkLoc$state == "DE",1.0 , 
+ifelse(sharkLoc$state == "SD",0.9 ,
+ifelse(sharkLoc$state == "ND",0.8 ,
+ifelse(sharkLoc$state == "AK",0.7 ,
+ifelse(sharkLoc$state == "DC",0.7 ,
+ifelse(sharkLoc$state == "VT",0.6 ,0.6))))))))))))))))))))))))))))))))))))))))))))))))))
+
+       
+sharkLoc = sharkLoc %>%
+  mutate(statePop)
+
+  
+#Categorize state populations by size (small, medium, large)
+
+stateSize <- ifelse(sharkLoc$statePop >=10, "large", 
+                    ifelse(sharkLoc$statePop >= 5, "medium", "small"))
+
+sharkLoc = sharkLoc %>%
+  mutate(stateSize)
+
+
+
+```
+
+```{r}
+sharkLoc %>%
+  ggplot(aes(x=statePop, y=valuation/1000)) + geom_point(alpha=.5, color="darkgreen")+geom_smooth(method=lm) + labs(title="Valuation vs. State Population", x="State Population (millions)", y="Valuation (thousands of dollars)")
+```
+
+This scatterplot shows the relationship between state population and valuation. It appears that there might be a slightly positive correlation between state population and valuation, but we cannot be sure from the graph. A positive relationship would mean that entrepreneurs from larger states have larger companies, which could indicate that states with higher populations have more resources/value even relative to their size. 
+
+We can run a linear regression to see if this relationship is significant.
+
+```{r}
+summary(lm(formula=valuation/1000 ~ statePop, data=sharkLoc))
+```
+
+By looking at the p-value of the slope of the valuation against the population, we can determine if the relationship is significant or not. As the p-value is not less than 0.05, we fail to reject the null hypothesis that there is no relationship. In essence, the evidence from this dataset is not strong enough to support the claim that there is a relationship between state population and valuation.
+
+We can also explore if there is a relationship if we categorize states as either large, medium, or small.
+
+```{r}
+sharkLoc %>%
+  ggplot(aes(x=stateSize, y=valuation/1000, fill=stateSize)) + geom_violin(alpha=5) + geom_boxplot() + coord_flip() + labs(title="State Size and Valuation", y="Valuation (thousands of dollars)", x="State Size (Large > 10 million, Medium > 5 million, Small < 5 million)")
+```
+
+With this categorization of states, it again appears that there is only a marginal difference between state sizes and valuations. However, interestingly, medium states have the lowest valuations, albeit not by much. In addition, large and small states have very similar valuations.
+
+
 ## Predicting Shark Tank Success
 We are also interested in predicting the success of shark tank applicants. A better understanding of what factors influence investor decisions can help founders create better pitches. 
 
