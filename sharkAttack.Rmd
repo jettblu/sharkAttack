@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
  ---
 title: "36-402 Final Project"
 author: "Darin Chaoui Jett Hays Emily Huang"
@@ -131,7 +136,7 @@ sharkTank2$multiple_entreprenuers = as.factor(as.logical(sharkTank2$multiple_ent
 # create transformed predictors
 sharkTank2$descriptionLen = nchar(sharkTank$description)
 sharkTank2$websiteLen = nchar(sharkTank$website)
-sharkTank$titleLen = nchar(sharkTank$title)
+sharkTank2$titleLen = nchar(sharkTank$title)
 ```
 
 Our response of interest is pitch 'success'. A pitch is considered successful if the founders earned a deal (denoted as 1). The table below indicates that more pitches are successful than unsuccessful. This may reflect selection bias, with show creators more likely to broadcast high quality pitches. Regardless, the difference is small and does not cause concern about class imbalance. 
