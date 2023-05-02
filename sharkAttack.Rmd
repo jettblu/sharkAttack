@@ -11,12 +11,12 @@ output: pdf_document
 ---
 
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # load data
 sharkTank = read.csv("sharkTank.csv", header=TRUE)
 ```
 
-```{r, message=FALSE}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # load required packages
 library(np)
 library(mgcv)
@@ -30,12 +30,31 @@ Shark tank is a popular business reality show. The show features a panel of weal
 Since launching in 2009, Shark Tank has become popular for its high-stakes negotiations and dramatic moments, as well as its inspirational stories of entrepreneurs who have turned their dreams into successful businesses. This paper focuses on describing the relationship between companies and investment.
 
 Our dataset includes the quantitative variables mix of categorical askedfor, exchangeForStake, and valuation. These variables measure the requests made by a given company. We also consider a range of categorical variables including company description, location, and episode. 
-Overall, we found that the requested valuation trends upward with season and that category is associated with deal flow. We also found that the amount asked for is negatively associated with the likelihood of obtaining a deal. We believe these insights will help entrepreneurs structure better pitches and help entrepreneurs recognize patterns in their own behavior. 
+Overall, we found that the requested valuation trends upward with season and that category is associated with deal flow. We also found that the amount asked for is negatively associated with the likelihood of obtaining a deal. We believe hese insights will help entrepreneurs structure better pitches and help entrepreneurs recognize patterns in their own behavior. 
+Since launching in 2009, Shark Tank has become popular for its high-stakes negotiations and dramatic moments, as well as its inspirational stories of entrepreneurs who have turned their dreams into successful businesses. This report focuses on describing the relationship between companies and investment. Our main goal is to help entrepreneurs better understand what influences companies to receive investment.
+
+Our dataset includes the quantitative variables of:
+**askedfor** - amount of money asked for by entrepreneur
+**exchangeForStake** - %stake asked for shark by entrepreneur 
+**valuation** - how much the entrepreneur values their company
+
+We also consider a range of categorical variables including:
+**description** - company description
+**location** - city, state of the company
+**episode** - episode number
+**season** - season of the show
+**category** - category of the company
+**deal** - deal or no deal
+**shark1** - name of 1st shark
+**shark2** - name of 2nd shark
+**shark3** - name of 3rd shark
+**shark4** - name of 4th shark
+**shark5** - name of 5th shark
 
 ## Shark Preferences.
-We want to know whether or not each shark has a preference on category of company. 
+We want to know whether or not each shark has a preference on the category of company. 
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # subset dataset with only the sharks, category, and deal or no deal
 sharkCat = sharkTank[, c("shark1", "shark2", "shark3", "shark4", "shark5", "category", "deal")]
 sharkCat <- sharkCat %>%
@@ -44,7 +63,7 @@ sharkCat <- sharkCat %>%
 sharkCat = subset(sharkCat, select = -shark)
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # combine categories into broader categories
 broaderCats = list(Novelties = c("Novelties"), 
                    Food = c("Specialty Food"), 
@@ -101,13 +120,13 @@ for (i in 1:nrow(sharkCat)) {
 sharkCat$broaderCategory = vec
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 chisq.test(table(sharkCat$broaderCategory, sharkCat$deal))
 ```
 
-Since we get a p-value less than the alpha of 0.05, we conclude that there is a statistically significant association between the category and deal.
+Since we get a p-value less than the alpha of 0.05, we conclude that there is a statistically significant association between the category and deal. We then continue onto the plot to have a visualization of categories against the sharks.
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # plot the shark name vs. broader category
 sharkCat %>%
   ggplot(aes(x = broaderCategory, y = name, color = deal)) +
@@ -119,9 +138,10 @@ sharkCat %>%
 
 This plot shows that all companies with the broader categories of Beverages, Electronics and Automotive, and Gardening and Home Improvement are always approved by every Shark. However, each Shark tends to only accept deals in certain broader categories such as Family or Food. So, companies with categories of Beverages, Electronics and Automotive, and Gardening and Home Improvement have a higher likelihood of getting a deal.
 
-## The relationship between episode number (show progression) and the valuation of companies
+## Show Progression and Valuation
+We also want to explore the relationship between episode number (show progression) and the valuation of companies.
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 sharkVal = sharkTank[, c("season", "valuation")]
 sharkVal %>%
   ggplot(aes(x = season, y = valuation)) +
@@ -135,23 +155,18 @@ This barchart shows that as the seasons progress, the valuation of each company 
 
 
 ##Location and Valuation
-
 In order to learn about the relationship between the location of the entrepreneurs and the size of their valuations, we examined their states' populations as well as their valuations. 
 
-
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 #Create new df for locations
 library(tidyverse)
 sharkLoc = sharkTank[, c('location', 'valuation', 'deal')]
 
 #Add column for state
-
 sharkLoc = sharkLoc %>%
   mutate(state=substr(location, str_length(location)-1, str_length(location)))
 
 #Add column for state populations
-
-
 statePop <- ifelse(sharkLoc$state == "CA", 39.5, 
 ifelse(sharkLoc$state == "TX", 29.1 , 
 ifelse(sharkLoc$state == "FL", 21.5,
@@ -207,20 +222,15 @@ ifelse(sharkLoc$state == "VT",0.6 ,0.6))))))))))))))))))))))))))))))))))))))))))
 sharkLoc = sharkLoc %>%
   mutate(statePop)
 
-  
 #Categorize state populations by size (small, medium, large)
-
 stateSize <- ifelse(sharkLoc$statePop >=10, "large", 
                     ifelse(sharkLoc$statePop >= 5, "medium", "small"))
 
 sharkLoc = sharkLoc %>%
   mutate(stateSize)
-
-
-
 ```
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 sharkLoc %>%
   ggplot(aes(x=statePop, y=valuation/1000)) + geom_point(alpha=.5, color="darkgreen")+geom_smooth(method=lm) + labs(title="Valuation vs. State Population", x="State Population (millions)", y="Valuation (thousands of dollars)")
 ```
@@ -229,7 +239,7 @@ This scatterplot shows the relationship between state population and valuation. 
 
 We can run a linear regression to see if this relationship is significant.
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 summary(lm(formula=valuation/1000 ~ statePop, data=sharkLoc))
 ```
 
@@ -237,19 +247,17 @@ By looking at the p-value of the slope of the valuation against the population, 
 
 We can also explore if there is a relationship if we categorize states as either large, medium, or small.
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 sharkLoc %>%
   ggplot(aes(x=stateSize, y=valuation/1000, fill=stateSize)) + geom_violin(alpha=5) + geom_boxplot() + coord_flip() + labs(title="State Size and Valuation", y="Valuation (thousands of dollars)", x="State Size (Large > 10 million, Medium > 5 million, Small < 5 million)")
 ```
 
 With this categorization of states, it again appears that there is only a marginal difference between state sizes and valuations. However, interestingly, medium states have the lowest valuations, albeit not by much. In addition, large and small states have very similar valuations.
 
-
 ## Predicting Shark Tank Success
 We are also interested in predicting the success of shark tank applicants. A better understanding of what factors influence investor decisions can help founders create better pitches. 
 
-
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # create separate df to avoid conflict w/ other sections
 sharkTank2 = sharkTank
 # code deal as 1/0
@@ -266,7 +274,7 @@ sharkTank2$titleLen = nchar(sharkTank$title)
 
 Our response of interest is pitch 'success'. A pitch is considered successful if the founders earned a deal (denoted as 1). The table below indicates that more pitches are successful than unsuccessful. This may reflect selection bias, with show creators more likely to broadcast high quality pitches. Regardless, the difference is small and does not cause concern about class imbalance. 
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # table 
 dealTable = table(sharkTank2$success)
 # rename table columns
@@ -276,7 +284,7 @@ dealTable
 
 We use logistic regression to model the relationship between deal success and predictors. Our first model will include 'product category' and whether or not a company had multiple founders as categorical predictors. In addition we include the following quantitative predictors: description length, title length, website length, valuation, exchange for stake, and amount asked for.
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 # fit full model
 sharkModFull = glm(success ~ category + multiple_entreprenuers + descriptionLen + websiteLen + titleLen + valuation + askedfor + exchangeforstake,
 data = sharkTank2, family = binomial)
@@ -286,12 +294,11 @@ The full model achieves an AIC (an estimator of prediction error) of 728. In adi
 
 Next, we run backwards elimination to find a reduced model that minimizes AIC. 
 
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 sharkModOpt = step(sharkModFull, direction = "backward", trace = 0)
 ```
 
-
-```{r}
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
 sharkModTest = anova(sharkModFull, sharkModOpt, test="Chisq")
 sharkModTest
 sharkModTestStat=sharkModTest$Deviance[2]
@@ -299,66 +306,4 @@ sharkModTestStat=sharkModTest$Deviance[2]
 
 Our reduced model only includes description length, valuation, and exchange for stake as predictors. The model achieves an AIC of 675 hich is lower than our full model. To determine whether or not, the full model is justified, we run a deviance analysis test. Our null hypothesis is that the full model does not have a significant increase in predictive power. After running our test, we obtain a p-value of .3259, which falls outside of .05 significance threshold. 
 
-The calibration curve of our logistic regression is shown below, with the ideal response shown as a diagonal line from 0 to 1. This corresponds to the case when the fraction of successes is equivalent to our estimated rate of occurrence. Looking at the chart, we can see that the fraction of successes is noticeably higher than our predicted rate for estimated probabilities of .25 and .9. This indicates we are underestimating the amount of successes at these probability levels. 
-
-```{r}
-# plot calibration curve
-
-probs <- seq(0.05, 0.95, by = 0.1)
-estRates <- numeric(10)
-for (i in seq_along(probs)) {
-lower_bound <- probs[i] - 0.05
-upper_bound <- probs[i] + 0.05
-estRates[i] <- mean(sharkTank2$success[fitted(sharkModOpt) > lower_bound &
-fitted(sharkModOpt) <= upper_bound])
-}
-
-
-
-tempCalibrationDf = data.frame(probs=probs, estRates=estRates)
-
-
-ggplot(tempCalibrationDf, aes(x=probs, y=estRates)) + xlab("Estimated P(Y = 1 | X)")+ylab("Fraction of cases with Y = 1")+
-  geom_point(size=2, shape=23, fill="blue")+labs(title="Logistic Regression Calibration Curve", caption = "The calibration plot shows the comparative fraction of positive cases against the predicted probability.")+geom_abline(intercept = 0, slope = 1, color="green")
-```
-
-Since the reduced model is simpler and achieves better predictive performance than the full model, we will proceed with the reduced model. Analyzing the model coefficients, we can see that valuation is associated with almost no difference in the odds of getting a deal. We also notice that every one percent increase in exchange for stake is associated with a multiplication of the odds of deal success by ~.977. This means that requests for higher percentage of the company are associated with a decrease in the odds of getting a deal. The confusion matrix of predictions is shown below. 
-
-```{r}
-# compute classification accuracy
-n <- nrow(sharkTank2)
-# fitted vals
-p <- fitted(sharkModOpt)
-names(p) <- NULL
-# .05 threshold 
-sharkPreds <- ifelse(p > 0.5, 1, 0)
-# confusion matrix
-sharkPredTable = table(sharkTank2$success, sharkPreds)
-names(dimnames(sharkPredTable)) <- c("Observed", "Predicted")
-# in-sample error rate (i.e. training error rate )
-error = sum(sharkTank2$success != sharkPreds) / n
-# interpreted coefficients
-interpSharkCoef = exp(coef(sharkModOpt))
-```
-
-```{r}
-# visualize confusion matrix
-sharkPredDf = data.frame(sharkPredTable)
-ggplot(data =  sharkPredDf, mapping = aes(x = Observed, y = Predicted)) +
-  geom_tile(aes(fill = Freq), colour = "white") +
-  geom_text(aes(label = sprintf("%1.0f", Freq)), vjust = 1) +
-  scale_fill_gradient(low = "red", high = "green") +
-  theme_bw() + theme(legend.position = "none")+labs(title="Reduced Model Confusion Matrix", caption = "The confusion matrix for our reduced logistic regression model. True positives and true negatives are shown in shades of green.")
-```
-
-The confusion matrix indicates our model produces more false positives than false negatives at a .5 classification threshold. Overall, the in sample classification accuracy of our reduced model is ~.6. 
-
-```{r}
-# load partial response library
-library(pdp)
-```
-
-
-
-## Conclusion 
  
