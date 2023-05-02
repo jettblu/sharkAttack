@@ -10,13 +10,12 @@ date: "4-12-23"
 output: pdf_document
 ---
 
-
 ```{r}
 # load data
 sharkTank = read.csv("sharkTank.csv", header=TRUE)
 ```
 
-```{r, message=FALSE}
+```{r, message = FALSE}
 # load required packages
 library(np)
 library(mgcv)
@@ -27,13 +26,28 @@ library(tidyr)
 ## Intro
 Shark tank is a popular business reality show. The show features a panel of wealthy investors who listen to pitches from aspiring entrepreneurs. 
 
-Since launching in 2009, Shark Tank has become popular for its high-stakes negotiations and dramatic moments, as well as its inspirational stories of entrepreneurs who have turned their dreams into successful businesses. This paper focuses on describing the relationship between companies and investment.
+Since launching in 2009, Shark Tank has become popular for its high-stakes negotiations and dramatic moments, as well as its inspirational stories of entrepreneurs who have turned their dreams into successful businesses. This report focuses on describing the relationship between companies and investment. Our main goal is to help entrepreneurs better understand what influences companies to receive investment.
 
-Our dataset includes the quantitative variables mix of categorical askedfor, exchangeForStake, and valuation. These variables measure the requests made by a given company. We also consider a range of categorical variables including company description, location, and episode. 
-Overall, we found that the requested valuation trends upward with season and that category is associated with deal flow. We also found that the amount asked for is negatively associated with the likelihood of obtaining a deal. We believe hese insights will help entrepreneurs structure better pitches and help entrepreneurs recognize patterns in their own behavior. 
+Our dataset includes the quantitative variables of:
+**askedfor** - amount of money asked for by entrepreneur
+**exchangeForStake** - %stake asked for shark by entrepreneur 
+**valuation** - how much the entrepreneur values their company
+
+We also consider a range of categorical variables including:
+**description** - company description
+**location** - city, state of the company
+**episode** - episode number
+**season** - season of the show
+**category** - category of the company
+**deal** - deal or no deal
+**shark1** - name of 1st shark
+**shark2** - name of 2nd shark
+**shark3** - name of 3rd shark
+**shark4** - name of 4th shark
+**shark5** - name of 5th shark
 
 ## Shark Preferences.
-We want to know whether or not each shark has a preference on category of company. 
+We want to know whether or not each shark has a preference on the category of company. 
 
 ```{r}
 # subset dataset with only the sharks, category, and deal or no deal
@@ -105,7 +119,7 @@ sharkCat$broaderCategory = vec
 chisq.test(table(sharkCat$broaderCategory, sharkCat$deal))
 ```
 
-Since we get a p-value less than the alpha of 0.05, we conclude that there is a statistically significant association between the category and deal.
+Since we get a p-value less than the alpha of 0.05, we conclude that there is a statistically significant association between the category and deal. We then continue onto the plot to have a visualization of categories against the sharks.
 
 ```{r}
 # plot the shark name vs. broader category
@@ -119,7 +133,8 @@ sharkCat %>%
 
 This plot shows that all companies with the broader categories of Beverages, Electronics and Automotive, and Gardening and Home Improvement are always approved by every Shark. However, each Shark tends to only accept deals in certain broader categories such as Family or Food. So, companies with categories of Beverages, Electronics and Automotive, and Gardening and Home Improvement have a higher likelihood of getting a deal.
 
-## The relationship between episode number (show progression) and the valuation of companies
+## Show Progression and Valuation
+We also want to explore the relationship between episode number (show progression) and the valuation of companies.
 
 ```{r}
 sharkVal = sharkTank[, c("season", "valuation")]
@@ -222,4 +237,6 @@ The confusion matrix indicates our model produces more false positives than fals
 
 
 ## Conclusion 
- 
+In summary, our analysis revealed that Sharks on the show tend to show interest in deals only within specific categories, such as Family or Food, and companies related to Beverages, Electronics and Automotive, and Gardening and Home Improvement may have a greater chance of success. Additionally, we observed a positive trend in the requested valuation during certain seasons, likely due to economic shifts and other factors. Conversely, a higher amount requested for a deal decreases the likelihood of it being accepted. These findings can aid entrepreneurs in crafting more effective pitches and identifying patterns in their own business behavior.
+
+For future researchers, a statistically significant causal relationship could be further explored to exactly determine if the correlations are causal. Ultimately, this report created an introductory analysis that can most definitely be further explored in the future. 
