@@ -306,4 +306,56 @@ sharkModTestStat=sharkModTest$Deviance[2]
 
 Our reduced model only includes description length, valuation, and exchange for stake as predictors. The model achieves an AIC of 675 hich is lower than our full model. To determine whether or not, the full model is justified, we run a deviance analysis test. Our null hypothesis is that the full model does not have a significant increase in predictive power. After running our test, we obtain a p-value of .3259, which falls outside of .05 significance threshold. 
 
+The calibration curve of our logistic regression is shown below, with the ideal response shown as a diagonal line from 0 to 1. This corresponds to the case when the fraction of successes is equivalent to our estimated rate of occurrence. Looking at the chart, we can see that the fraction of successes is noticeably higher than our predicted rate for estimated probabilities of .25 and .9. This indicates we are underestimating the amount of successes at these probability levels. 
+
+```{r}
+# plot calibration curve
+probs <- seq(0.05, 0.95, by = 0.1)
+estRates <- numeric(10)
+for (i in seq_along(probs)) {
+lower_bound <- probs[i] - 0.05
+upper_bound <- probs[i] + 0.05
+estRates[i] <- mean(sharkTank2$success[fitted(sharkModOpt) > lower_bound &
+fitted(sharkModOpt) <= upper_bound])
+}
+tempCalibrationDf = data.frame(probs=probs, estRates=estRates)
+ggplot(tempCalibrationDf, aes(x=probs, y=estRates)) + xlab("Estimated P(Y = 1 | X)")+ylab("Fraction of cases with Y = 1")+
+  geom_point(size=2, shape=23, fill="blue")+labs(title="Logistic Regression Calibration Curve", caption = "The calibration plot shows the comparative fraction of positive cases against the predicted probability.")+geom_abline(intercept = 0, slope = 1, color="green")
+```
+
+Since the reduced model is simpler and achieves better predictive performance than the full model, we will proceed with the reduced model. Analyzing the model coefficients, we can see that valuation is associated with almost no difference in the odds of getting a deal. We also notice that every one percent increase in exchange for stake is associated with a multiplication of the odds of deal success by ~.977. This means that requests for higher percentage of the company are associated with a decrease in the odds of getting a deal. The confusion matrix of predictions is shown below. 
+
+```{r}
+# compute classification accuracy
+n <- nrow(sharkTank2)
+# fitted vals
+p <- fitted(sharkModOpt)
+names(p) <- NULL
+# .05 threshold 
+sharkPreds <- ifelse(p > 0.5, 1, 0)
+# confusion matrix
+sharkPredTable = table(sharkTank2$success, sharkPreds)
+names(dimnames(sharkPredTable)) <- c("Observed", "Predicted")
+# in-sample error rate (i.e. training error rate )
+error = sum(sharkTank2$success != sharkPreds) / n
+# interpreted coefficients
+interpSharkCoef = exp(coef(sharkModOpt))
+```
+
+```{r}
+# visualize confusion matrix
+sharkPredDf = data.frame(sharkPredTable)
+ggplot(data =  sharkPredDf, mapping = aes(x = Observed, y = Predicted)) +
+  geom_tile(aes(fill = Freq), colour = "white") +
+  geom_text(aes(label = sprintf("%1.0f", Freq)), vjust = 1) +
+  scale_fill_gradient(low = "red", high = "green") +
+  theme_bw() + theme(legend.position = "none")+labs(title="Reduced Model Confusion Matrix", caption = "The confusion matrix for our reduced logistic regression model. True positives and true negatives are shown in shades of green.")
+```
+
+The confusion matrix indicates our model produces more false positives than false negatives at a .5 classification threshold. Overall, the in sample classification accuracy of our reduced model is ~.6. 
+
+## Conclusion 
+In summary, our analysis revealed that Sharks on the show tend to show interest in deals only within specific categories, such as Family or Food, and companies related to Beverages, Electronics and Automotive, and Gardening and Home Improvement may have a greater chance of success. Additionally, we observed a positive trend in the requested valuation during certain seasons, likely due to economic shifts and other factors. Conversely, a higher amount requested for a deal decreases the likelihood of it being accepted. These findings can aid entrepreneurs in crafting more effective pitches and identifying patterns in their own business behavior.
+
+For future researchers, a statistically significant causal relationship could be further explored to exactly determine if the correlations are causal. Ultimately, this report created an introductory analysis that can most definitely be further explored in the future. 
  
